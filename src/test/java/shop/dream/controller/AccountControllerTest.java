@@ -11,11 +11,8 @@ import shop.dream.domain.AccountRole;
 import shop.dream.repository.AccountRepository;
 import shop.dream.service.AccountService;
 
-import java.util.Optional;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.unauthenticated;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -84,8 +81,8 @@ class AccountControllerTest {
     @Test
     void signUpSubmit_with_correct_input() throws Exception {
         mockMvc.perform(post("/signup")
-                .param("username", "seongbin")
-                .param("email", "seongbin@email.com")
+                .param("username", "koseongbin")
+                .param("email", "koseongbin@email.com")
                 .param("password", "12345678")
                 .param("passwordConfirm", "12345678")
                 .with(csrf()))
@@ -93,7 +90,7 @@ class AccountControllerTest {
                 .andExpect(view().name("redirect:/login"))
                 .andExpect(unauthenticated()); // 로그인은 하지 않기 때문
 
-        Account account = accountRepository.findByUsername("seongbin").orElse(null);
+        Account account = accountRepository.findByUsername("koseongbin").orElse(null);
         assertNotNull(account);
         assertNotEquals(account.getPassword(), "12345678");
         assertEquals(account.getRole() , AccountRole.ROLE_USER);

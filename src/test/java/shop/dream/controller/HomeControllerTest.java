@@ -37,7 +37,7 @@ class HomeControllerTest {
     void beforeEach() {
         SignUpRequestDto signUpRequestDto = new SignUpRequestDto();
         signUpRequestDto.setUsername("seongbin");
-        signUpRequestDto.setEmail("seongbin@email.com");
+        signUpRequestDto.setEmail("email@email.com");
         signUpRequestDto.setPassword("12345678");
 
         accountService.saveNewAccount(signUpRequestDto);

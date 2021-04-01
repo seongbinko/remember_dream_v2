@@ -281,4 +281,5 @@ Todo list
 
 - 카카오로그인 URL 변경
 - H2 테스트 DB에서 AWS rds mysql로 변경
+- org/springframework/boot/configurationprocessor/json/JSONException로 잘못된 import를 org.json으로 변경
 - 프로젝트 완료 및 배포
