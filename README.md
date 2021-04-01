@@ -104,6 +104,8 @@ Todo list
 - 데이터베이스 : mysql
 - 형상관리 툴 : git
 - 간단 소개 : 꿈(진짜 밤에 꾼 꿈)을 기록하는 커뮤니티
+- 사이트 : [드림리멤버](http://seongbindb.shop)
+- 시연영상 : [시연영상](https://youtu.be/KH2OmGdJ4So)
 
 ## 1. 요구사항 분석
 - [요구사항 분석 영상](https://youtu.be/Vn5QE9eSPE0)
