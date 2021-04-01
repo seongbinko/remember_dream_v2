@@ -43,7 +43,7 @@ public class PostController {
     @GetMapping("/posts/update/{postId}")
     public String postUpdatePage(@PathVariable Long postId, Model model, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         Post post  = postRepository.findById(postId).orElse(null);
-        if(post == null || post.getAccount().getUsername() != userDetails.getAccount().getUsername()) {
+        if(post == null || !post.getAccount().getUsername().equals(userDetails.getAccount().getUsername())) {
             return "error/404";
         }
         PostRequestDto postRequestDto = new PostRequestDto();
