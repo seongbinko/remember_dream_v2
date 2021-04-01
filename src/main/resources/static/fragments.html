@@ -1,0 +1,321 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:fragment="head">
+    <meta charset="UTF-8">
+    <meta property="og:title" content="드림리멤버">
+    <meta property="og:description" content="꿈 꾼 내용을 기록하는 커뮤니티">
+    <meta property="og:image" content="https://user-images.githubusercontent.com/60464424/112089125-617f6a80-8bd4-11eb-8716-c2ee97146611.jpg">
+    <meta property="og:url" content="http://seongbindb.shop/">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic&display=swap" rel="stylesheet">
+    <title>드림리멤버</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.min.js" integrity="sha384-+YQ4JLhjyBLPDQt//I+STsc9iw4uQqACwlvpslubQzn4u2UU2UFM80nGisd026JF" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+    <style>
+        .container {
+            max-width: 100%;
+        }
+    </style>
+</head>
+<nav th:fragment="main-nav" class="navbar navbar-expand-sm navbar-dark bg-dark">
+    <a class="navbar-brand" href="/" th:href="@{/}">
+        드림 리멤버
+    </a>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+                <form th:action="@{/posts}" class="form-inline" method="get">
+                    <input class="form-control mr-sm-2" name="keyword" type="search" placeholder=" 검색" aria-label="Search" />
+                </form>
+            </li>
+            <li class="nav-item" sec:authorize="isAuthenticated()">
+                <a class="nav-link btn btn-outline-primary" th:href="@{/posts/update}">
+                    <i class="fa fa-plus" aria-hidden="true"></i> 꿈 등록
+                </a>
+            </li>
+        </ul>
+        <ul class="navbar-nav justify-content-end">
+            <li class="nav-item" sec:authorize="!isAuthenticated()">
+                <a class="nav-link" th:href="@{/login}">로그인</a>
+            </li>
+            <li class="nav-item" sec:authorize="!isAuthenticated()">
+                <a class="nav-link" th:href="@{/signup}">회원가입</a>
+            </li>
+            <li class="nav-item" sec:authorize="isAuthenticated()">
+                <span class="nav-link" th:text="${#authentication.name} + '님 환영합니다.'"></span>
+            </li>
+            <li class="nav-item" sec:authorize="isAuthenticated()">
+                <form class="form-inline my-2 my-lg-0" action="#" th:action="@{/logout}" method="post">
+                    <button class="nav-link btn btn-outline-secondary" type="submit">로그아웃</button>
+                </form>
+            </li>
+        </ul>
+    </div>
+</nav>
+<footer th:fragment="footer">
+    <div class="row justify-content-center">
+        <small class="d-block mb-3 text-muted">&copy; 드림리멤버 2021</small>
+    </div>
+</footer>
+<script type="application/javascript" th:fragment="form-validation">
+    (function () {
+        'use strict';
+
+        window.addEventListener('load', function () {
+            // Fetch all the forms we want to apply custom Bootstrap validation styles to
+            let forms = document.getElementsByClassName('needs-validation');
+
+            // Loop over them and prevent submission
+            Array.prototype.filter.call(forms, function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (form.checkValidity() === false) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated')
+                }, false)
+            })
+        }, false)
+    }())
+</script>
+<script type="application/javascript" th:inline="javascript" th:fragment="ajax-csrf-header">
+    $(function() {
+        let csrfToken = /*[[${_csrf.token}]]*/ null;
+        let csrfHeader = /*[[${_csrf.headerName}]]*/ null;
+        $(document).ajaxSend(function (e, xhr, options) {
+            xhr.setRequestHeader(csrfHeader, csrfToken);
+        });
+    });
+</script>
+<script type="application/javascript" th:inline="javascript" th:fragment="read-dream">
+    const postId = /*[[${post.id}]]*/ null;
+    const username = /*[[${#authentication.name}]]*/ null;
+
+    $(function() {
+        getComments();
+    });
+
+    function confirmDelete() {
+        if(confirm("정말 삭제하시겠습니까?")) {
+            $("#form").submit();
+        }
+        return false;
+    }
+
+    // 게시글에 해당하는 전체 댓글 조회
+    function getComments() {
+        $.ajax({
+            type: "GET",
+            url: "/posts/" + postId + "/comments",
+            dataType: "json",
+            contentType: "application/json; charset=utf-8",
+            success: function (result) {
+                let content = `<div class="comment-option">
+								<h3 id="comment-title">댓글<span class="badge">${result.length}</span></h3>
+							</div>`;
+                $.each(result, function (index, item) {
+
+                    content += `<ul class="list-group" data-comment-writer="${item.account.username}" data-comment-no="${item.id}" data-comment="${item.comment}" data-fulldate="${moment(item.modifiedAt).format("YYYY-MM-DD HH:mm:ss")}">`
+
+                    content += `<li class="list-group-item">
+								<p><strong>${item.account.username}</strong></p>
+								<p>${item.comment}</p>`;
+                    content += `<p><span>최종 수정일: ${moment(item.modifiedAt).format("YYYY-MM-DD HH:mm:ss")} </span>`;
+
+                    if(username == item.account.username) {
+                        content += `<button class="btn-update">수정</button><button class="btn-delete">삭제</button>`;
+                    }
+                    content += `</span></p></li></ul>`;
+                })
+                $("#comment-show").empty().append(content);
+                // 댓글 등록 활성화
+                saveComment();
+                // 자신의 댓글 수정버튼 누를시 수정창으로 바뀌는 것 활성화
+                changeCommentDiv();
+                // 자신 댓글 삭제 기능 활성화
+                deleteComment();
+            }
+        })
+    }
+    /*
+     * 다른 창 수정버튼 클릭시 예외처리 및, 취소버튼 클릭시 원래의 창으로 되돌아 가는 부분
+     */
+    function changeCommentDiv() {
+        $(".btn-update").off().on('click', function () {
+            if ($("#comment-update").text() != "") {
+                alert("한번에 하나의 수정만 가능합니다.")
+                return false;
+
+            }
+            var commentNo = $(this).closest("ul").data("comment-no");
+            var comment = $(this).closest("ul").data("comment");
+            var writer = $("#user_nickname").val();
+            var selector = $(this).closest("ul")
+            currentHtml = selector;
+
+            var content = `<div id="comment-update" data-commentno="${commentNo}" data-comment="${comment}" data-writer="${writer}">
+							<lable>${username}<button class="update-comment">수정</button><button class="btn-comment-cancle">취소</button></lable>
+							<textarea class="form-control" rows="5" cols="124" placeholder="댓글을 남겨주세요" minlength="10" maxlength="200">${comment}</textarea>
+						</div>`
+            $(selector).empty();
+            $(selector).append(content);
+            // 댓글 업데이트 기능 활성화
+            updateComment();
+            // 댓글 수정취소 기능 활성화
+            cancelComment();
+        })
+    }
+    /*
+ * 댓글 수정취소 기능
+ */
+    function cancelComment() {
+        $(".btn-comment-cancle").on('click', function () {
+            var selector = $(this).closest("ul");
+            var content = `<li id class="list-group-item">
+							<p><stong>${selector.data("comment-writer")}</strong></p>
+							<p>${selector.data("comment")}</p>
+							<p><span>최종 수정일: ${selector.data("fulldate")}</span>
+							<button class="btn-update">수정</button><button class="btn-delete">삭제</button></p>
+						</li>`
+            $("#comment-update").remove();
+            $(selector).append(content);
+
+            //다른 창 수정버튼 클릭시 예외처리 및, 취소버튼 클릭시 원래의 창으로 되돌아 가는 부분
+            changeCommentDiv();
+            //댓글 삭제 기능 활성화
+            deleteComment();
+        })
+    }
+
+    /*
+     * 댓글 수정 api
+     */
+    function updateComment() {
+        $(".update-comment").on('click', function () {
+            // var recipeNo = $("#recipeNo").data("recipeno");
+            var commentNo = $("#comment-update").data("commentno");
+            var comment = $("#comment-update textarea").val();
+            if (comment.trim().length < 10) {
+                alert("현재 타이핑수: " + comment.trim().length + " 최소 타이핑 수는 10 이상입니다.");
+                return false;
+            }
+
+            $.ajax({
+                type: "PUT",
+                url: "/posts/" + postId + "/comments/" + commentNo,
+                data: comment,
+                contentType: "application/json; charset=utf-8"
+            }).done(function () {
+                getComments();
+                alert("정상적으로 수정되었습니다.")
+            }).fail(function () {
+                alert("예기치 않은 오류가 발생하였습니다.")
+            })
+        })
+    }
+
+    /*
+        * 댓글 삭제
+    */
+    function deleteComment() {
+        $(".btn-delete").off().on('click', function () {
+
+            let commentNo = $(this).closest("ul").data("comment-no")
+
+            $.ajax({
+                method: "DELETE",
+                url: "/posts/" + postId + "/comments/" + commentNo
+            }).done(function () {
+                alert("삭제가 완료되었습니다.");
+                getComments();
+            }).fail(function () {
+                alert("알수 없는 오류가 발생하였습니다.")
+                location.href = "/posts/" + postId;
+            })
+        })
+    }
+
+    function saveComment() {
+        $(".attach-comment").off().on('click', function () {
+
+            if(username == "anonymousUser") {
+                alert("댓글기능은 로그인 후 이용가능 합니다.")
+                window.location.href = "/login";
+                return false;
+            }
+
+            let data = {}
+            let content = $(this).closest("#comment-writer").find("textarea").val();
+            if (content == null) {
+
+                content = $(this).closest("#comment-reply").find("textarea").val();
+                data.commentParentNo = $(this).closest("ul").data("comment-no");
+                $(this).closest("#comment-reply").find("textarea").val("");
+
+            } else {
+                $(this).closest("#comment-writer").find("textarea").val("");
+            }
+            if (content.trim().length < 10) {
+                alert("현재 타이핑수: " + content.trim().length + " 최소 타이핑 수는 10 이상입니다.");
+                return false;
+            }
+            data.comment = content;
+            //data.username = username;
+
+            $.ajax({
+                method: "POST",
+                url: "/posts/" + postId + "/comments/",
+                data: JSON.stringify(data),
+                contentType: "application/json; charset=utf-8"
+            }).done(function () {
+                alert("댓글이 등록되었습니다.");
+                getComments();
+            }).fail(function () {
+                alert("알수 없는 오류가 발생하였습니다.")
+            })
+        })
+    }
+
+</script>
+<script type="application/javascript" th:inline="javascript" th:fragment="signup">
+    const username = /*[[${#authentication.name}]]*/ null;
+
+    $(function() {
+        if(username != "anonymousUser") {
+            alert("이미 로그인이 되어 있습니다.")
+            window.location.href = "/";
+        }
+
+    })
+    function onclickAdmin() {
+        // Get the checkbox
+        let checkBox = document.getElementById("adminCheck");
+        // Get the output text
+        let box = document.getElementById("adminToken");
+
+        // If the checkbox is checked, display the output text
+        if (checkBox.checked == true){
+            box.style.display = "block";
+        } else {
+            box.style.display = "none";
+        }
+    }
+</script>
+<script type="application/javascript" th:inline="javascript" th:fragment="login">
+    const username = /*[[${#authentication.name}]]*/ null;
+
+    $(function() {
+        if(username != "anonymousUser") {
+            alert("이미 로그인이 되어 있습니다.")
+            window.location.href = "/";
+        }
+
+    })
+</script>
+</html>

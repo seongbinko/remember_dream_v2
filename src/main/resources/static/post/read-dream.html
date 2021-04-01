@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="fragments.html :: head"></head>
+<body class="bg-light">
+<div th:replace="fragments.html :: main-nav"></div>
+<div id="main-title" class="py-5 text-center">
+    <h2>꿈 상세내용</h2>
+</div>
+<div class="row justify-content-center">
+    <form id="form" class="col-sm-8" action="#"
+          th:action="@{'/posts/' + *{id}}" th:object="${post}" th:method="delete" novalidate>
+        <input id="_method" type="hidden" name="_method" value="delete"/>
+        <div class="form-group">
+            <p id="username">작성자: <span th:text="*{account.username}"></span></p>
+        </div>
+        <div class="form-group">
+            <p id="createdAt">작성일: <span th:text="*{#temporals.format(createdAt, 'yyyy-MM-dd HH:mm')}"></span></p>
+        </div>
+        <div class="form-group">
+            <p id="modifiedAt">수정일: <span th:text="*{#temporals.format(modifiedAt, 'yyyy-MM-dd HH:mm')}"></span></p>
+        </div>
+
+        <div id="title-group" class="form-group">
+            <label for="title">꿈 명</label>
+            <input id="title" type="text" th:field="*{title}" class="form-control" disabled
+                   placeholder="좋은 꿈을 꾸었다" aria-describedby="titleHelp" required minlength="3" maxlength="20">
+            <small id="titleHelp" class="form-text text-muted">3자이상 20자이내로 입력해주세요</small>
+            <small class="invalid-feedback">꿈 명을 입력하세요.</small>
+        </div>
+        <div id="contents-group" class="form-group">
+            <label for="contents">꿈 내용</label>
+            <textarea id="contents" th:field="*{contents}" class="form-control" disabled
+                      aria-describedby="contentsHelp" required minlength="30" maxlength="200" rows="5"></textarea>
+            <small id="contentsHelp" class="form-text text-muted">
+                30자 이상 200자 이내로 입력하세요
+            </small>
+            <small class="invalid-feedback">꿈 내용을 입력하세요.</small>
+        </div>
+        <div class="form-group">
+            <a th:href="@{/}" class="btn btn-secondary float-left" >목록으로</a>
+            <a th:href="@{'/posts/update/' + *{id}}" th:if="${#authentication.name == post.account.username}" class="btn btn-primary float-right ml-1" aria-describedby="submitHelp">글 수정</a>
+            <button th:if="${#authentication.name == post.account.username}" id="btn-post-delete" class="btn btn-danger float-right ml-1" type="button" onclick="confirmDelete()">글 삭제</button>
+        </div>
+    </form>
+    <br/>
+    <br/>
+    <form id="comment-form" class="col-sm-8">
+    <div id="comment-box" class="form-group">
+        <div id="comment-show"></div>
+        <div id="comment-writer" class="form-group">
+            <button type="button" class="attach-comment btn btn-outline-dark mt-2">댓글등록</button>
+            <textarea class="form-control mt-2" rows="10" cols="124" placeholder="댓글을 남겨주세요" maxlength="200"></textarea>
+        </div>
+    </div>
+    </form>
+</div>
+<div th:replace="fragments.html :: footer"></div>
+<script th:replace="fragments.html :: form-validation"></script>
+<script th:replace="fragments.html :: read-dream"></script>
+<script th:replace="fragments.html :: ajax-csrf-header"></script>
+</body>
+</html>
